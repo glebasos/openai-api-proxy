@@ -1,113 +1,195 @@
-import Image from 'next/image'
+'use client';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import OpenAI from 'openai';
+import SyntaxHighlighter from 'react-syntax-highlighter'
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+
 
 export default function Home() {
+
+  var openai = new OpenAI({
+    apiKey: "",
+    dangerouslyAllowBrowser: true
+  });
+
+  const [tempSliderValue, setTempSliderValue] = useState<number>(1);
+  const [tokenSliderValue, setTokenSliderValue] = useState<number>(1000);
+  const [frequencySliderValue, setFrequencySliderValue] = useState<number>(0.1);
+  const [presenceSliderValue, setPresenceSliderValue] = useState<number>(0.1);
+
+  // State variable for dropdown
+  const [gptDropdownValue, setGptDropdownValue] = useState<string>('gpt-3.5-turbo');
+
+  // State variable for text input
+  const [textInputValue, setTextInputValue] = useState<string>('');
+  const [textOutputValue, setTextOutputValue] = useState<string | null>('');
+  const [token, setToken] = useState<string>('');
+
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+
+  const [response, setResponse] = useState();
+
+  // Function to handle slider value change
+  const handleSliderChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setState: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    setState(parseFloat(e.target.value));
+  };
+
+  // Function to handle dropdown value change
+  const handleDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGptDropdownValue(e.target.value);
+  };
+
+  // Function to handle text input change
+  const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTextInputValue(e.target.value);
+  };
+
+  const handleTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setToken(e.target.value);
+  };
+
+  const onConfigureButton = () => {
+
+  }
+
+  const getGPTResponse = async () => {
+    openai = new OpenAI({
+      apiKey: token,
+      dangerouslyAllowBrowser: true
+    });
+
+    setTextOutputValue('');
+
+    const chatCompletion = await openai.chat.completions.create({
+      model: gptDropdownValue,
+      messages: [{ "role": "system", "content": textInputValue }],
+      max_tokens: tokenSliderValue,
+      frequency_penalty: frequencySliderValue,
+      presence_penalty: presenceSliderValue
+    });
+    setTextOutputValue(chatCompletion.choices[0].message.content);
+  };
+
+  const onGenerateResponse = () => {
+    getGPTResponse();
+  }
+
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+
+    <div className="App">
+      <h1>OpenAI API Tester</h1>
+
+
+      {/* Text Input */}
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div>
+          <label>Token: </label>
+          <input
+            type="text"
+            value={token}
+            onChange={handleTokenChange}
+          />
         </div>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+
+
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {/* Slider 1 */}
+        <div>
+          <label>Temperature:</label>
+          <input
+            type="range"
+            min="0"
+            max="2"
+            step="0.1"  // Set the step to 0.1
+            value={tempSliderValue}
+            onChange={(e) => handleSliderChange(e, setTempSliderValue)}
+          />
+          <span>{tempSliderValue}</span>
+        </div>
+
+        {/* Slider 2 */}
+        <div>
+          <label>MaxToken:</label>
+          <input
+            type="range"
+            min="0"
+            max="5000"
+            value={tokenSliderValue}
+            onChange={(e) => handleSliderChange(e, setTokenSliderValue)}
+          />
+          <span>{tokenSliderValue}</span>
+        </div>
+
+        {/* Slider 3 */}
+        <div>
+          <label>Frequency:</label>
+          <input
+            type="range"
+            min="-2"
+            max="2"
+            step="0.1"
+            value={frequencySliderValue}
+            onChange={(e) => handleSliderChange(e, setFrequencySliderValue)}
+          />
+          <span>{frequencySliderValue}</span>
+        </div>
+
+        {/* Slider 4 */}
+        <div>
+          <label>Presence:</label>
+          <input
+            type="range"
+            min="-2"
+            max="2"
+            step="0.1"
+            value={presenceSliderValue}
+            onChange={(e) => handleSliderChange(e, setPresenceSliderValue)}
+          />
+          <span>{presenceSliderValue}</span>
+        </div>
       </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      {/* Dropdown */}
+      <div>
+        <label>Dropdown:</label>
+        <select value={gptDropdownValue} onChange={handleDropdownChange}>
+          <option value="gpt-3.5-turbo">GPT-3.5</option>
+          <option value="gpt-4">GPT-4</option>
+        </select>
       </div>
-    </main>
-  )
+
+      {/* Text Input */}
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div>
+          <label>Text Input: </label>
+          <input
+            type="text"
+            value={textInputValue}
+            onChange={handleTextInputChange}
+          />
+        </div>
+        <div>
+          <button onClick={() => onGenerateResponse()}>Send</button>
+        </div>
+      </div>
+
+
+      {/* Text Output */}
+      <div>
+        <label>GPT Response:</label>
+        <p></p>
+          <SyntaxHighlighter language="json" style={docco}>
+            {textOutputValue || '// No response loaded yet'}
+          </SyntaxHighlighter>
+      </div>
+    </div>
+  );
 }
