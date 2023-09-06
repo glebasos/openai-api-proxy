@@ -140,6 +140,13 @@ export default function Home() {
             <span>{presenceSliderValue}</span>
           </div>
           <div className='narrow-element'>
+            <label>Тип GPT:</label>
+            <select value={gptDropdownValue} onChange={handleDropdownChange} className='narrow-textinput'>
+              <option value="gpt-3.5-turbo">GPT-3.5</option>
+              <option value="gpt-4">GPT-4</option>
+            </select>
+          </div>
+          <div className='narrow-element'>
             <NiceButton text="Отправить" onClick={getGPTResponse}></NiceButton>
           </div>
         </div>
