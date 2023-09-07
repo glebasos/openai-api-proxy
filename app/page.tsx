@@ -156,7 +156,7 @@ export default function Home() {
           <div className="wide-content">
             <label>GPT Response:</label>
             <p></p>
-            <SyntaxHighlighter language="json" style={vs2015}>
+            <SyntaxHighlighter language="json" style={vs2015} wrapLines={true} wrapLongLines={true} className="wide-syntax">
               {textOutputValue || '// No response loaded yet'}
             </SyntaxHighlighter>
           </div>

@@ -23,6 +23,10 @@
     flex-direction: column;
   }
 
+  .wide-syntax {
+    overflow-x: hidden;
+  }
+
   .narrow-element {
     padding: 10px;
     display: flex; /* Use flexbox to stack items vertically */
