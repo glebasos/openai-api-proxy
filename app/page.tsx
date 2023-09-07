@@ -151,7 +151,7 @@ export default function Home() {
               value={topPSliderValue}
               onChange={(e) => handleSliderChange(e, setTopPSliderValue)}
             />
-            <span>{presenceSliderValue}</span>
+            <span>{topPSliderValue}</span>
           </div>
           <div className='narrow-element'>
             <label>Тип GPT:</label>
