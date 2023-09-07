@@ -20,6 +20,7 @@ export default function Home() {
   const [tokenSliderValue, setTokenSliderValue] = useState<number>(1000);
   const [frequencySliderValue, setFrequencySliderValue] = useState<number>(0.1);
   const [presenceSliderValue, setPresenceSliderValue] = useState<number>(0.1);
+  const [topPSliderValue, setTopPSliderValue] = useState<number>(0.5);
 
   // State variable for dropdown
   const [gptDropdownValue, setGptDropdownValue] = useState<string>('gpt-3.5-turbo');
@@ -72,7 +73,8 @@ export default function Home() {
       messages: [{ "role": "system", "content": textInputValue }],
       max_tokens: tokenSliderValue,
       frequency_penalty: frequencySliderValue,
-      presence_penalty: presenceSliderValue
+      presence_penalty: presenceSliderValue,
+      top_p: topPSliderValue,
     });
     setTextOutputValue(chatCompletion.choices[0].message.content);
   };
@@ -136,6 +138,18 @@ export default function Home() {
               step="0.1"
               value={presenceSliderValue}
               onChange={(e) => handleSliderChange(e, setPresenceSliderValue)}
+            />
+            <span>{presenceSliderValue}</span>
+          </div>
+          <div className='narrow-element'>
+            <label>Top P:</label>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={topPSliderValue}
+              onChange={(e) => handleSliderChange(e, setTopPSliderValue)}
             />
             <span>{presenceSliderValue}</span>
           </div>
